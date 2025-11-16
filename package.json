@@ -1,0 +1,33 @@
+{
+  "name": "atividade2ppi",
+  "version": "1.0.0",
+  "description": "Atividade 2 PPI - Formulário",
+  "keywords": [
+    "node",
+    "express",
+    "html",
+    "http",
+    "javascript"
+  ],
+  "homepage": "https://github.com/Taval077/Atividade2PPI#readme",
+  "bugs": {
+    "url": "https://github.com/Taval077/Atividade2PPI/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Taval077/Atividade2PPI.git"
+  },
+  "license": "ISC",
+  "author": "Otávio Oliveira",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^5.1.0",
+    "session": "^0.1.0"
+  }
+}
