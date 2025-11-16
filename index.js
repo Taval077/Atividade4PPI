@@ -1,8 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 
-
-
 const host = "0.0.0.0";
 const porta = 3000;
 
@@ -10,11 +8,16 @@ var listaUsuarios = [];
 
 const server = express();
 server.use(express.urlencoded({ extended: true }));
+server.use(cookieParser());
 
 // ===== HOME =====
 server.get('/', (req, res) => {
     let ultimoAcesso = req.cookies?.ultimoAcesso;
-    res.send(`
+
+    const data = new Date();
+    res.cookie("ultimoAcesso", data.toLocaleString());
+    res.setHeader("Content-Type", "text/html");
+    res.write(`
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -36,7 +39,7 @@ server.get('/', (req, res) => {
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Dropdown</a>
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Opções</a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="/cadastrar-empresa">Cadastro de empresa</a></li>
                     <li><a class="dropdown-item" href="/login">Login</a></li>
@@ -45,13 +48,18 @@ server.get('/', (req, res) => {
         </ul>
     </div>
 </div>
-<div class >
-
+<div class="container-fluid">
+    <div class="d-flex">
+        <div class="p-2">
+        <p>Último acesso: ${ultimoAcesso || "Primeiro acesso"}</p>
+        </div>
+    </div>
 </div>
 </nav>
 </body>
 </html>
 `);
+    res.end();   // <<< CORRIGIDO AQUI
 });
 
 // ===== CADASTRAR EMPRESA =====
@@ -195,7 +203,6 @@ server.post('/adicionarUsuario', (req, res) => {
 
 <form method="POST" action="/adicionarUsuario" class="row g-3">`;
 
-    // Razão social
     conteudo += `
 <div class="col-md-4">
 <label class="form-label">Razão social</label>
@@ -203,7 +210,6 @@ server.post('/adicionarUsuario', (req, res) => {
 </div>`;
     if (!social) conteudo += `<div class="text-danger">Por favor, preencha o campo Razão social.</div>`;
 
-    // Nome fantasia
     conteudo += `
 <div class="col-md-4">
 <label>Nome fantasia</label>
@@ -211,7 +217,6 @@ server.post('/adicionarUsuario', (req, res) => {
 </div>`;
     if (!fantasia) conteudo += `<div class="text-danger">Por favor, preencha o campo Nome fantasia.</div>`;
 
-    // CNPJ
     conteudo += `
 <div class="col-md-4">
 <label>CNPJ</label>
@@ -219,7 +224,6 @@ server.post('/adicionarUsuario', (req, res) => {
 </div>`;
     if (!cnpj) conteudo += `<div class="text-danger">Por favor, preencha o campo CNPJ.</div>`;
 
-    // Cidade
     conteudo += `
 <div class="col-md-6">
 <label>Cidade</label>
@@ -227,7 +231,6 @@ server.post('/adicionarUsuario', (req, res) => {
 </div>`;
     if (!cidade) conteudo += `<div class="text-danger">Por favor, preencha o campo Cidade.</div>`;
 
-    // Endereço
     conteudo += `
 <div class="col-md-6">
 <label>Endereço</label>
@@ -235,7 +238,6 @@ server.post('/adicionarUsuario', (req, res) => {
 </div>`;
     if (!endereco) conteudo += `<div class="text-danger">Por favor, preencha o campo Endereço.</div>`;
 
-    // UF
     conteudo += `
 <div class="col-md-3">
 <label>UF</label>
@@ -273,7 +275,6 @@ server.post('/adicionarUsuario', (req, res) => {
 </div>`;
     if (!uf) conteudo += `<div class="text-danger">Por favor, preencha o campo UF.</div>`;
 
-    // CEP
     conteudo += `
 <div class="col-md-3">
 <label>CEP</label>
@@ -281,7 +282,6 @@ server.post('/adicionarUsuario', (req, res) => {
 </div>`;
     if (!cep) conteudo += `<div class="text-danger">Por favor, preencha o campo CEP.</div>`;
 
-    // E-mail
     conteudo += `
 <div class="col-md-6">
 <label>E-mail</label>
@@ -289,7 +289,6 @@ server.post('/adicionarUsuario', (req, res) => {
 </div>`;
     if (!email) conteudo += `<div class="text-danger">Por favor, preencha o campo E-mail.</div>`;
 
-    // Telefone
     conteudo += `
 <div class="col-md-6">
 <label>Telefone</label>
@@ -410,6 +409,7 @@ server.get('/login', (req, res) => {
 </html>
 `);
 });
+
 server.post('/login', (req, res) => {
   
     const email = req.body.email;
@@ -418,6 +418,7 @@ server.post('/login', (req, res) => {
     if (email && senha) {
         return res.send(`<h2>Login bem-sucedido!</h2><a href="/">Voltar ao Início</a>`);
     }
+
     let loginInvalido = `
     <!DOCTYPE html>
 <html lang="pt-br">
@@ -461,14 +462,10 @@ loginInvalido += `
 </html>
 `;
 
-// ===== INICIAR SERVIDOR =====
-server.listen(porta, host, () => {
-    console.log(`Servidor rodando em http://${host}:${porta}`);
-});
     return res.send(loginInvalido);
 });
 
 // ===== INICIAR SERVIDOR =====
 server.listen(porta, host, () => {
     console.log(`Servidor rodando em http://${host}:${porta}`);
-}); 
+});
