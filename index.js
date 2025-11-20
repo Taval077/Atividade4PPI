@@ -60,7 +60,7 @@ server.get('/', verificarAutenticacao, (req, res) => {
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Opções</a>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="/cadastrar-empresa">Cadastro de empresa</a></li>
+                    <li><a class="dropdown-item" href="/cadastrar-produto">Cadastro de produtos</a></li>
                     <li><a class="dropdown-item" href="/listarUsuarios">Listar empresas</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="/logout">Logout</a></li>
@@ -84,128 +84,86 @@ server.get('/', verificarAutenticacao, (req, res) => {
 });
 
 
-// ===== CADASTRAR EMPRESA =====
-server.get('/cadastrar-empresa', verificarAutenticacao, (req, res) => {
+// ===== CADASTRAR PRODUTO =====
+server.get('/cadastrar-produto', verificarAutenticacao, (req, res) => {
     res.send(`
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cadastro</title>
+<title>Cadastro de Produtos</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
 <div class="container mt-5">
-<h2 class="mb-4 text-center">Cadastro de fornecedor</h2>
+    <h2 class="mb-4 text-center">Cadastro de Produtos</h2>
 
-<form method="POST" action="/adicionarUsuario" class="row g-3">
+    <form method="POST" action="/adicionarUsuario" class="row g-3">
 
-<div class="col-md-4">
-<label for="cnpj" class="form-label">CNPJ</label>
-<input type="text" class="form-control" id="cnpj" name="cnpj">
-</div>
+        <div class="col-md-4">
+            <label for="codigo" class="form-label">Código de Barras</label>
+            <input type="text" class="form-control" id="codigo" name="codigo" required>
+        </div>
 
-<div class="col-md-4">
-<label for="social" class="">Razão social</label>
-<input type="text" class="form-control" id="social" name="social">
-</div>
+        <div class="col-md-8">
+            <label for="descricao" class="form-label">Descrição do Produto</label>
+            <input type="text" class="form-control" id="descricao" name="descricao" required>
+        </div>
 
-<div class="col-md-4">
-<label for="fantasia" class="form-label">Nome fantasia</label>
-<input type="text" class="form-control" id="fantasia" name="fantasia">
-</div>
+        <div class="col-md-4">
+            <label for="precoCusto" class="form-label">Preço de Custo (R$)</label>
+            <input type="number" step="0.01" class="form-control" id="precoCusto" name="precoCusto" required>
+        </div>
 
-<div class="col-md-6">
-<label for="endereco" class="form-label">Endereço</label>
-<input type="text" class="form-control" id="endereco" name="endereco">
-</div>
+        <div class="col-md-4">
+            <label for="precoVenda" class="form-label">Preço de Venda (R$)</label>
+            <input type="number" step="0.01" class="form-control" id="precoVenda" name="precoVenda" required>
+        </div>
 
-<div class="col-md-6">
-<label for="Cidade" class="form-label">Cidade</label>
-<input type="text" class="form-control" id="Cidade" name="Cidade">
-</div>
+        <div class="col-md-4">
+            <label for="validade" class="form-label">Data de Validade</label>
+            <input type="date" class="form-control" id="validade" name="validade">
+        </div>
 
-<div class="col-md-3">
-<label for="uf" class="form-label">UF</label>
-<select class="form-select" id="uf" name="uf">
-<option selected disabled value="">Escolha um estado...</option>
-<option value="AC">Acre</option>
-<option value="AL">Alagoas</option>
-<option value="AP">Amapá</option>
-<option value="AM">Amazonas</option>
-<option value="BA">Bahia</option>
-<option value="CE">Ceará</option>
-<option value="DF">Distrito Federal</option>
-<option value="ES">Espírito Santo</option>
-<option value="GO">Goiás</option>
-<option value="MA">Maranhão</option>
-<option value="MT">Mato Grosso</option>
-<option value="MS">Mato Grosso do Sul</option>
-<option value="MG">Minas Gerais</option>
-<option value="PA">Pará</option>
-<option value="PB">Paraíba</option>
-<option value="PR">Paraná</option>
-<option value="PE">Pernambuco</option>
-<option value="PI">Piauí</option>
-<option value="RJ">Rio de Janeiro</option>
-<option value="RN">Rio Grande do Norte</option>
-<option value="RS">Rio Grande do Sul</option>
-<option value="RO">Rondônia</option>
-<option value="RR">Roraima</option>
-<option value="SC">Santa Catarina</option>
-<option value="SP">São Paulo</option>
-<option value="SE">Sergipe</option>
-<option value="TO">Tocantins</option>
-<option value="EX">Estrangeiro</option>
-</select>
-</div>
+        <div class="col-md-4">
+            <label for="estoque" class="form-label">Quantidade em Estoque</label>
+            <input type="number" class="form-control" id="estoque" name="estoque" required>
+        </div>
 
-<div class="col-md-3">
-<label for="cep" class="form-label">CEP</label>
-<input type="text" class="form-control" id="cep" name="cep">
-</div>
+        <div class="col-md-8">
+            <label for="fabricante" class="form-label">Nome do Fabricante</label>
+            <input type="text" class="form-control" id="fabricante" name="fabricante">
+        </div>
 
-<div class="col-md-3">
-<label for="email" class="form-label">E-mail</label>
-<input type="email" class="form-control" id="email" name="email">
-</div>
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">Cadastrar</button>
+            <a class="btn btn-secondary" href="/">Voltar</a>
+        </div>
 
-<div class="col-md-3">
-<label for="telefone" class="form-label">Telefone</label>
-<input type="text" class="form-control" id="telefone" name="telefone">
-</div>
-
-<div class="col-12">
-<button class="btn btn-primary" type="submit">Cadastrar</button>
-<a class="btn btn-secondary" href="/">Voltar</a>
-</div>
-
-</form>
-
+    </form>
 </div>
 
 </body>
 </html>
+
 `);
 });
 
 
 // ===== POST ADICIONAR USUÁRIO =====
 server.post('/adicionarUsuario', verificarAutenticacao, (req, res) => {
-    const cnpj = req.body.cnpj;
-    const social = req.body.social;
-    const fantasia = req.body.fantasia;
-    const endereco = req.body.endereco;
-    const email = req.body.email;
-    const telefone = req.body.telefone;
-    const cidade = req.body.Cidade;
-    const uf = req.body.uf;
-    const cep = req.body.cep;
+    const codigo = req.body.codigo;
+    const descricao = req.body.descricao;
+    const precoCusto = req.body.precoCusto;
+    const precoVenda = req.body.precoVenda;
+    const validade = req.body.validade;
+    const estoque = req.body.estoque;
+    const fabricante = req.body.fabricante;
 
-    if (cnpj && social && fantasia && cidade && uf && cep && email && telefone && endereco) {
-        listaUsuarios.push({ cnpj, social, fantasia, cidade, uf, cep, email, telefone, endereco });
+    if (codigo && descricao && precoCusto && precoVenda && validade && estoque && fabricante) {
+        listaUsuarios.push({ codigo, descricao, precoCusto, precoVenda, validade, estoque, fabricante});
         return res.redirect('/listarUsuarios');
     }
 
@@ -214,111 +172,74 @@ server.post('/adicionarUsuario', verificarAutenticacao, (req, res) => {
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Cadastro</title>
+<title>Cadastro de Produtos</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
 <div class="container mt-5">
-<h2 class="mb-4 text-center">Cadastro de Usuário</h2>
+<h2 class="mb-4 text-center">Cadastro de Produtos</h2>
 
 <form method="POST" action="/adicionarUsuario" class="row g-3">`;
 
-    // Validações...
-    conteudo += `
+// ===== Código de Barras =====
+conteudo += `
 <div class="col-md-4">
-<label class="form-label">Razão social</label>
-<input type="text" class="form-control" name="social" value="${social ?? ""}">
+<label class="form-label">Código de Barras</label>
+<input type="text" class="form-control" name="codigo" value="${codigo ?? ""}">
 </div>`;
-    if (!social) conteudo += `<div class="text-danger">Por favor, preencha o campo Razão social.</div>`;
+if (!codigo) conteudo += `<div class="text-danger">Por favor, preencha o campo Código de Barras.</div>`;
 
-    conteudo += `
+// ===== Descrição =====
+conteudo += `
+<div class="col-md-8">
+<label class="form-label">Descrição do Produto</label>
+<input type="text" class="form-control" name="descricao" value="${descricao ?? ""}">
+</div>`;
+if (!descricao) conteudo += `<div class="text-danger">Por favor, preencha o campo Descrição.</div>`;
+
+// ===== Preço de Custo =====
+conteudo += `
 <div class="col-md-4">
-<label>Nome fantasia</label>
-<input type="text" class="form-control" name="fantasia" value="${fantasia ?? ""}">
+<label>Preço de Custo (R$)</label>
+<input type="number" step="0.01" class="form-control" name="precoCusto" value="${precoCusto ?? ""}">
 </div>`;
-    if (!fantasia) conteudo += `<div class="text-danger">Por favor, preencha o campo Nome fantasia.</div>`;
+if (!precoCusto) conteudo += `<div class="text-danger">Por favor, preencha o campo Preço de Custo.</div>`;
 
-    conteudo += `
+// ===== Preço de Venda =====
+conteudo += `
 <div class="col-md-4">
-<label>CNPJ</label>
-<input type="text" class="form-control" name="cnpj" value="${cnpj ?? ""}">
+<label>Preço de Venda (R$)</label>
+<input type="number" step="0.01" class="form-control" name="precoVenda" value="${precoVenda ?? ""}">
 </div>`;
-    if (!cnpj) conteudo += `<div class="text-danger">Por favor, preencha o campo CNPJ.</div>`;
+if (!precoVenda) conteudo += `<div class="text-danger">Por favor, preencha o campo Preço de Venda.</div>`;
 
-    conteudo += `
-<div class="col-md-6">
-<label>Cidade</label>
-<input type="text" class="form-control" name="Cidade" value="${cidade ?? ""}">
+// ===== Validade =====
+conteudo += `
+<div class="col-md-4">
+<label>Data de Validade</label>
+<input type="date" class="form-control" name="validade" value="${validade ?? ""}">
 </div>`;
-    if (!cidade) conteudo += `<div class="text-danger">Por favor, preencha o campo Cidade.</div>`;
+if (!validade) conteudo += `<div class="text-danger">Por favor, preencha o campo Data de Validade.</div>`;
 
-    conteudo += `
-<div class="col-md-6">
-<label>Endereço</label>
-<input type="text" class="form-control" name="endereco" value="${endereco ?? ""}">
+// ===== Estoque =====
+conteudo += `
+<div class="col-md-4">
+<label>Quantidade em Estoque</label>
+<input type="number" class="form-control" name="estoque" value="${estoque ?? ""}">
 </div>`;
-    if (!endereco) conteudo += `<div class="text-danger">Por favor, preencha o campo Endereço.</div>`;
+if (!estoque) conteudo += `<div class="text-danger">Por favor, preencha o campo Estoque.</div>`;
 
-    conteudo += `
-<div class="col-md-3">
-<label>UF</label>
-<select class="form-select" name="uf">
-<option ${!uf ? "selected" : ""} disabled value="">Escolha um estado...</option>
-<option value="AC" ${uf=="AC"?"selected":""}>Acre</option>
-<option value="AL" ${uf=="AL"?"selected":""}>Alagoas</option>
-<option value="AP" ${uf=="AP"?"selected":""}>Amapá</option>
-<option value="AM" ${uf=="AM"?"selected":""}>Amazonas</option>
-<option value="BA" ${uf=="BA"?"selected":""}>Bahia</option>
-<option value="CE" ${uf=="CE"?"selected":""}>Ceará</option>
-<option value="DF" ${uf=="DF"?"selected":""}>Distrito Federal</option>
-<option value="ES" ${uf=="ES"?"selected":""}>Espírito Santo</option>
-<option value="GO" ${uf=="GO"?"selected":""}>Goiás</option>
-<option value="MA" ${uf=="MA"?"selected":""}>Maranhão</option>
-<option value="MT" ${uf=="MT"?"selected":""}>Mato Grosso</option>
-<option value="MS" ${uf=="MS"?"selected":""}>Mato Grosso do Sul</option>
-<option value="MG" ${uf=="MG"?"selected":""}>Minas Gerais</option>
-<option value="PA" ${uf=="PA"?"selected":""}>Pará</option>
-<option value="PB" ${uf=="PB"?"selected":""}>Paraíba</option>
-<option value="PR" ${uf=="PR"?"selected":""}>Paraná</option>
-<option value="PE" ${uf=="PE"?"selected":""}>Pernambuco</option>
-<option value="PI" ${uf=="PI"?"selected":""}>Piauí</option>
-<option value="RJ" ${uf=="RJ"?"selected":""}>Rio de Janeiro</option>
-<option value="RN" ${uf=="RN"?"selected":""}>Rio Grande do Norte</option>
-<option value="RS" ${uf=="RS"?"selected":""}>Rio Grande do Sul</option>
-<option value="RO" ${uf=="RO"?"selected":""}>Rondônia</option>
-<option value="RR" ${uf=="RR"?"selected":""}>Roraima</option>
-<option value="SC" ${uf=="SC"?"selected":""}>Santa Catarina</option>
-<option value="SP" ${uf=="SP"?"selected":""}>São Paulo</option>
-<option value="SE" ${uf=="SE"?"selected":""}>Sergipe</option>
-<option value="TO" ${uf=="TO"?"selected":""}>Tocantins</option>
-<option value="EX" ${uf=="EX"?"selected":""}>Estrangeiro</option>
-</select>
+// ===== Fabricante =====
+conteudo += `
+<div class="col-md-8">
+<label>Nome do Fabricante</label>
+<input type="text" class="form-control" name="fabricante" value="${fabricante ?? ""}">
 </div>`;
-    if (!uf) conteudo += `<div class="text-danger">Por favor, preencha o campo UF.</div>`;
+if (!fabricante) conteudo += `<div class="text-danger">Por favor, preencha o campo Fabricante.</div>`;
 
-    conteudo += `
-<div class="col-md-3">
-<label>CEP</label>
-<input type="text" class="form-control" name="cep" value="${cep ?? ""}">
-</div>`;
-    if (!cep) conteudo += `<div class="text-danger">Por favor, preencha o campo CEP.</div>`;
-
-    conteudo += `
-<div class="col-md-6">
-<label>E-mail</label>
-<input type="email" class="form-control" name="email" value="${email ?? ""}">
-</div>`;
-    if (!email) conteudo += `<div class="text-danger">Por favor, preencha o campo E-mail.</div>`;
-
-    conteudo += `
-<div class="col-md-6">
-<label>Telefone</label>
-<input type="text" class="form-control" name="telefone" value="${telefone ?? ""}">
-</div>`;
-    if (!telefone) conteudo += `<div class="text-danger">Por favor, preencha o campo Telefone.</div>`;
-
-    conteudo += `
+// ===== Botões =====
+conteudo += `
 <div class="col-12">
 <button class="btn btn-primary" type="submit">Cadastrar</button>
 <a class="btn btn-secondary" href="/">Voltar</a>
@@ -331,8 +252,9 @@ server.post('/adicionarUsuario', verificarAutenticacao, (req, res) => {
 </html>
 `;
 
-    return res.send(conteudo);
+return res.send(conteudo);
 });
+
 
 
 // ===== LISTAR USUÁRIOS =====
@@ -349,19 +271,18 @@ server.get('/listarUsuarios', verificarAutenticacao, (req, res) => {
 <body>
 
 <div class="container mt-5">
-<h2 class="mb-4 text-center">Lista de Usuários</h2>
+<h2 class="mb-4 text-center">Lista de Produtos</h2>
 
 <table class="table table-striped">
 <thead>
 <tr>
-<th>CNPJ</th>
-<th>Razão Social</th>
-<th>Nome Fantasia</th>
-<th>Cidade</th>
-<th>UF</th>
-<th>CEP</th>
-<th>E-mail</th>
-<th>Telefone</th>
+<th>Código</th>
+<th>Descrição</th>
+<th>Valor de Custo</th>
+<th>Valor de Venda</th>
+<th>Validade</th>
+<th>Estoque</th>
+<th>Fabricante</th>
 </tr>
 </thead>
 <tbody>`;
@@ -369,14 +290,13 @@ server.get('/listarUsuarios', verificarAutenticacao, (req, res) => {
     listaUsuarios.forEach(usuario => {
         conteudo += `
 <tr>
-<td>${usuario.cnpj}</td>
-<td>${usuario.social}</td>
-<td>${usuario.fantasia}</td>
-<td>${usuario.cidade}</td>
-<td>${usuario.uf}</td>
-<td>${usuario.cep}</td>
-<td>${usuario.email}</td>
-<td>${usuario.telefone}</td>
+<td>${usuario.codigo}</td>
+<td>${usuario.descricao}</td>
+<td>${usuario.precoCusto}</td>
+<td>${usuario.precoVenda}</td>
+<td>${usuario.validade}</td>
+<td>${usuario.estoque}</td>
+<td>${usuario.fabricante}</td>
 </tr>`;
     });
 
@@ -384,7 +304,7 @@ server.get('/listarUsuarios', verificarAutenticacao, (req, res) => {
 </tbody>
 </table>
 
-<a class="btn btn-primary" href="/cadastrar-empresa">Cadastrar nova empresa</a>
+<a class="btn btn-primary" href="/cadastrar-produto">Cadastrar novo produto</a>
 <a class="btn btn-secondary" href="/">Voltar ao Início</a>
 
 </div>
