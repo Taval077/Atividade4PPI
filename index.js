@@ -1,5 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
 
 const host = "0.0.0.0";
 const porta = 3000;
@@ -7,11 +8,30 @@ const porta = 3000;
 var listaUsuarios = [];
 
 const server = express();
+server.use(session({
+    secret: 'segredo',
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 1000 * 60 * 15
+    }
+}));
 server.use(express.urlencoded({ extended: true }));
 server.use(cookieParser());
 
+
+// ===== MIDDLEWARE DE AUTENTICAÇÃO =====
+function verificarAutenticacao(req, res, next) {
+    if (req.session.dadosLogin?.usuarioLogado) {
+        return next();
+    } else {
+        res.redirect("/login");
+    }
+}
+
+
 // ===== HOME =====
-server.get('/', (req, res) => {
+server.get('/', verificarAutenticacao, (req, res) => {
     let ultimoAcesso = req.cookies?.ultimoAcesso;
 
     const data = new Date();
@@ -31,8 +51,7 @@ server.get('/', (req, res) => {
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
 <div class="container-fluid">
     <a class="navbar-brand" href="#">Menu</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
         <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -42,7 +61,9 @@ server.get('/', (req, res) => {
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Opções</a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="/cadastrar-empresa">Cadastro de empresa</a></li>
-                    <li><a class="dropdown-item" href="/login">Login</a></li>
+                    <li><a class="dropdown-item" href="/listarUsuarios">Listar empresas</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/logout">Logout</a></li>
                 </ul>
             </li>
         </ul>
@@ -59,11 +80,12 @@ server.get('/', (req, res) => {
 </body>
 </html>
 `);
-    res.end();   // <<< CORRIGIDO AQUI
+    res.end();
 });
 
+
 // ===== CADASTRAR EMPRESA =====
-server.get('/cadastrar-empresa', (req, res) => {
+server.get('/cadastrar-empresa', verificarAutenticacao, (req, res) => {
     res.send(`
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -92,9 +114,7 @@ server.get('/cadastrar-empresa', (req, res) => {
 
 <div class="col-md-4">
 <label for="fantasia" class="form-label">Nome fantasia</label>
-<div class="input-group has-validation">
 <input type="text" class="form-control" id="fantasia" name="fantasia">
-</div>
 </div>
 
 <div class="col-md-6">
@@ -171,8 +191,9 @@ server.get('/cadastrar-empresa', (req, res) => {
 `);
 });
 
+
 // ===== POST ADICIONAR USUÁRIO =====
-server.post('/adicionarUsuario', (req, res) => {
+server.post('/adicionarUsuario', verificarAutenticacao, (req, res) => {
     const cnpj = req.body.cnpj;
     const social = req.body.social;
     const fantasia = req.body.fantasia;
@@ -203,6 +224,7 @@ server.post('/adicionarUsuario', (req, res) => {
 
 <form method="POST" action="/adicionarUsuario" class="row g-3">`;
 
+    // Validações...
     conteudo += `
 <div class="col-md-4">
 <label class="form-label">Razão social</label>
@@ -295,12 +317,13 @@ server.post('/adicionarUsuario', (req, res) => {
 <input type="text" class="form-control" name="telefone" value="${telefone ?? ""}">
 </div>`;
     if (!telefone) conteudo += `<div class="text-danger">Por favor, preencha o campo Telefone.</div>`;
-    
+
     conteudo += `
 <div class="col-12">
 <button class="btn btn-primary" type="submit">Cadastrar</button>
 <a class="btn btn-secondary" href="/">Voltar</a>
 </div>
+
 </form>
 </div>
 
@@ -311,8 +334,9 @@ server.post('/adicionarUsuario', (req, res) => {
     return res.send(conteudo);
 });
 
+
 // ===== LISTAR USUÁRIOS =====
-server.get('/listarUsuarios', (req, res) => {
+server.get('/listarUsuarios', verificarAutenticacao, (req, res) => {
 
     let conteudo = `
 <!DOCTYPE html>
@@ -360,7 +384,7 @@ server.get('/listarUsuarios', (req, res) => {
 </tbody>
 </table>
 
-<a class="btn btn-primary" href="/cadastrar-empresa">Cadastrar Nova empresa</a>
+<a class="btn btn-primary" href="/cadastrar-empresa">Cadastrar nova empresa</a>
 <a class="btn btn-secondary" href="/">Voltar ao Início</a>
 
 </div>
@@ -371,7 +395,8 @@ server.get('/listarUsuarios', (req, res) => {
     res.send(conteudo);
 });
 
-// ===== LOGIN e LOGOUT =====
+
+// ===== LOGIN =====
 server.get('/login', (req, res) => {
     res.send(`
 <!DOCTYPE html>
@@ -384,13 +409,13 @@ server.get('/login', (req, res) => {
 </head>
 <body>
 <div class="container mt-5">
-<h2 class="mb-4 text-center">Login</h2>
+<h2 class="mb-4 text-center">Autenticação de usuário</h2>
 
 <form method="POST" action="/login" class="row g-3">
 
 <div class="col-12">
-<label class="form-label">E-mail</label>
-<input type="email" class="form-control" name="email">
+<label class="form-label">Usuário</label>
+<input type="text" class="form-control" name="usuario">
 </div>
 
 <div class="col-12">
@@ -410,60 +435,71 @@ server.get('/login', (req, res) => {
 `);
 });
 
-server.post('/login', (req, res) => {
-  
-    const email = req.body.email;
-    const senha = req.body.senha;
 
-    if (email && senha) {
-        return res.send(`<h2>Login bem-sucedido!</h2><a href="/">Voltar ao Início</a>`);
+// ===== LOGIN POST CORRIGIDO =====
+server.post('/login', (req, res) => {
+
+    const { usuario, senha } = req.body;
+
+    if (usuario === "admin" && senha === "admin123") {
+
+        req.session.dadosLogin = {
+            usuarioLogado: true,
+            nomeUsuario: "Administrador"
+        };
+
+        return res.redirect("/");
     }
 
-    let loginInvalido = `
-    <!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<div class="container mt-5">
-<h2 class="mb-4 text-center">Login</h2>
+    // Se usuário ou senha errados
+    res.write(`
+        <!DOCTYPE html>
+        <html lang="pt-br">
+        <head>
+            <meta charset="UTF-8">
+            <title>Login</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        </head>
+        <body>
+        <div class="container mt-5">
+        <h2 class="mb-4 text-center">Autenticação de usuário</h2>
 
-<form method="POST" action="/login" class="row g-3">
+        <form method="POST" action="/login" class="row g-3">
 
-<div class="col-12">
-<label class="form-label">E-mail</label>
-<input type="email" class="form-control" name="email">
-</div>`;
-if(!email){
-    loginInvalido += `<div class="text-danger">Por favor, preencha o campo E-mail.</div>`;
-}
-loginInvalido += `
+            <div class="col-12">
+                <label class="form-label">Usuário</label>
+                <input type="text" class="form-control" name="usuario" value="${usuario ?? ''}">
+                ${!usuario ? `<div class="text-danger">Por favor, preencha o campo Usuário.</div>` : ''}
+            </div>
 
-<div class="col-12">
-<label class="form-label">Senha</label>
-<input type="password" class="form-control" name="senha">
-</div>`;
-if(!senha){
-    loginInvalido += `<div class="text-danger">Por favor, preencha o campo Senha.</div>`;
-}  
-loginInvalido += `
+            <div class="col-12">
+                <label class="form-label">Senha</label>
+                <input type="password" class="form-control" name="senha">
+                ${!senha ? `<div class="text-danger">Por favor, preencha o campo Senha.</div>` : ''}
+            </div>
 
-<div class="col-12">
-<button class="btn btn-primary" type="submit">Entrar</button>
-<a class="btn btn-secondary" href="/">Voltar</a>
-</div>
-</form>
-</div>
-</body>
-</html>
-`;
+            <div class="col-12">
+                <button class="btn btn-primary" type="submit">Entrar</button>
+                <a class="btn btn-secondary" href="/">Voltar</a>
+            </div>
 
-    return res.send(loginInvalido);
+        </form>
+        </div>
+        </body>
+        </html>
+    `);
+
+    res.end();
 });
+
+
+// ===== LOGOUT =====
+server.get("/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.redirect("/login");
+    });
+});
+
 
 // ===== INICIAR SERVIDOR =====
 server.listen(porta, host, () => {
